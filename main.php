@@ -1,5 +1,5 @@
 <?php
-dl('sdl.so');
+dl('sdl.' . PHP_SHLIB_SUFFIX);
 
 require 'Universe.php';
 require 'UniverseFactory.php';
@@ -40,6 +40,8 @@ $run = false;
 $lastX = $lastY = -1;
 $rect = new SDL_Rect(0, 0, CellSize, CellSize);
 $quit = false;
+$event = new SDL_Event;
+
 while (!$quit) {
     // Clear screen
     SDL_SetRenderDrawColor($renderer, 0, 0, 0, 255);
@@ -60,47 +62,47 @@ while (!$quit) {
         }
     }
 
+    // Present renderer
+    SDL_RenderPresent($renderer);
+
     if ($run) {
         SDL_SetWindowTitle($window, BaseTitle . ' - Gen#' . $life->getGeneration());
         $life->evolve();
     }
 
-    // Present renderer
-    SDL_RenderPresent($renderer);
-
-    $event = new SDL_Event;
     while (SDL_PollEvent($event)) {
-        if ($event->type == SDL_QUIT) {
-            $quit = true;
-        }
-        if ($event->type == SDL_KEYDOWN) {
-            $quit = $event->key->keysym->sym == SDLK_q;
-            if ($event->key->keysym->sym === SDLK_SPACE) {
-                $run = !$run;
-            }
-        }
-        if ($event->type == SDL_MOUSEMOTION) {
-            $x = intval($event->motion->y / CellSize);
-            $y = intval($event->motion->x / CellSize);
-            if ($event->motion->state & SDL_BUTTON_LMASK) {
-                if ($lastX != $x || $lastY != $y) {
-                    $universe->flipCellAt($x, $y);
-                    $lastX = $x;
-                    $lastY = $y;
+        switch ($event->type) {
+            case SDL_QUIT:
+                $quit = true;
+                break;
+            case SDL_KEYDOWN:
+                $quit = $event->key->keysym->sym == SDLK_q;
+                if ($event->key->keysym->sym === SDLK_SPACE) {
+                    $run = !$run;
                 }
-            }
-        } else
-        if ($event->type == SDL_MOUSEBUTTONDOWN) {
-            if ($event->button->button === SDL_BUTTON_LEFT) {
+                break;
+            case SDL_MOUSEMOTION:
+                $x = intval($event->motion->y / CellSize);
+                $y = intval($event->motion->x / CellSize);
+                if ($event->motion->state & SDL_BUTTON_LMASK) {
+                    if ($lastX != $x || $lastY != $y) {
+                        $universe->flipCellAt($x, $y);
+                        $lastX = $x;
+                        $lastY = $y;
+                    }
+                }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
                 $x = intval($event->button->y / CellSize);
                 $y = intval($event->button->x / CellSize);
                 $universe->flipCellAt($x, $y);
-            }
+                break;
         }
     }
 
     SDL_Delay($run ? 400 : 40);
 }
 
+SDL_DestroyRenderer($renderer);
 SDL_DestroyWindow($window);
 SDL_Quit();
