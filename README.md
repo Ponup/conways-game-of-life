@@ -5,9 +5,13 @@
 # Requirements
 
 - PHP 7
-- SDL bindings for PHP
+- [SDL bindings for PHP](https://github.com/Ponup/phpsdl)
 
 # Usage
+
+- Use mouse and button to draw cells in the universe
+- Use `space` to start simulation
+- Use `q` to quit
 
 ## Start default blank universe
 
@@ -21,6 +25,6 @@ $ php main.php
 $ php main.php universes/small-exploder.json
 ```
 
-- Use mouse and button to draw cells in the universe
-- Use `space` to start simulation
-- Use `q` to quit
+# References
+
+- [Wikipedia](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
